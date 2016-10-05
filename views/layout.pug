@@ -1,0 +1,23 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous")
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous")
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    link(rel='stylesheet', href='/stylesheets/style.css')
+
+  body
+    nav(class="navbar navbar-default")
+      div(class="container-fluid")
+        div(class="navbar-header")
+          a(class="navbar-brand" href="#") Twitter Sentiment Analysis!
+    div(class='container')
+      block content
+    script(src="https://cdn.socket.io/socket.io-1.4.5.js")
+    script(src="http://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous")
+    script(async src="http://platform.twitter.com/widgets.js" charset="utf-8")
+    // script(async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtgKGIltqt7wWk78Dmey_a8wTLRqdRKK8&callback=initMap")
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    script(src="javascripts/index.js")
