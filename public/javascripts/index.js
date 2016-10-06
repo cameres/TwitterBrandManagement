@@ -16,8 +16,7 @@ socket.on('tweet', function (data) {
     '</blockquote></div>');
   } else {
     $('#right').prepend('<div class="tweet" id="'+tweet_id+'"><blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">'+
-      '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>'+
-    '</blockquote></div>');
+      '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>' + '</blockquote></div>');
   }
   // creating a random point
   function getRandomInRange(from, to, fixed) {
@@ -74,6 +73,11 @@ socket.on('tweet', function (data) {
   // call widget load to format tweet
   twttr.widgets.load()
 });
+
+socket.on('update_impressions', function(impressions){
+  console.log(impressions);
+});
+
 
 socket.on('remove_tweet', function(data){
   // remove the tweet with this id
