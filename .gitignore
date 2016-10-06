@@ -136,4 +136,5 @@ ENV/
 .ropeproject
 
 #### other ####
-twitter.json
+twitter_credentials.json
+# notes.md
