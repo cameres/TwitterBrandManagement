@@ -5,13 +5,7 @@ var request = require('request');
 // var routes = require('./routes/index');
 
 // maintain a dictionary of imporessions for a flight
-var impressions = {
-  // '@delta': {
-  //   running_impression_score:
-  //   number_of_tweets:
-  //   normalized_impression_score:
-  // }
-}
+var impressions = {}
 
 
 var app = express();
