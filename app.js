@@ -4,14 +4,14 @@ var Twit = require('twit');
 var request = require('request');
 // var routes = require('./routes/index');
 
-// maintain a dictionary of the + and - imporessions for a flight
-// var impressions = {
-//   // ie:
-//   "@delta": {
-//     "+" : 100,
-//     "-" : 100
-//   }
-// }
+// maintain a dictionary of imporessions for a flight
+var impressions = {
+  // '@delta': {
+  //   running_impression_score:
+  //   number_of_tweets:
+  //   normalized_impression_score:
+  // }
+}
 
 
 var app = express();
@@ -50,9 +50,7 @@ credentials = require('./twitter_credentials.json')
 // create twitter variable
 var T = new Twit(credentials);
 
-
-// all major us airlines
-var stream = T.stream('statuses/filter', { track:[
+var airlines = [
   '@AlaskaAir',
   '@AmericanAir',
   '@Allegiant',
@@ -64,8 +62,11 @@ var stream = T.stream('statuses/filter', { track:[
   '@SpiritAirlines',
   '@SunCountryAir',
   '@VirginAmerica',
-  '@United']
-})
+  '@United'
+];
+
+// all major us airlines
+var stream = T.stream('statuses/filter', { track:airlines });
 
 // async function called when a filtered tweet comes in
 stream.on('tweet', function(tweet) {
@@ -73,44 +74,43 @@ stream.on('tweet', function(tweet) {
   // call the sentiment-flask api to get the sentiment of the tweet
   request.post('http://localhost:5000/sentiment', {form:{text: tweet['text']}}, function(error, response, body){
     // parse the json response from the server
-    var sentiment = JSON.parse(response["body"]);
-    // add sentiment to the existing
-    // javascript object to pass
+    var sentiment = JSON.parse(response['body']);
+    // add sentiment to the object
     tweet['sentiment'] = sentiment;
 
-    // get the dictionary or other
-    // which company was tweeted?
-    console.log(tweet);
+    var sentiment_pos = sentiment['pos'];
+    var sentiment_neg = sentiment['neg'];
 
-    // use the bounding box
-    // // "bounding_box": {
-    //   "coordinates": [
-    //     [
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ],
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ],
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ],
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ]
-    //     ]
-    //   ],
-    //   "type": "Polygon"
-    // },
+    // console.log(tweet);
+
+    var follower_count = tweet['user']['followers_count']
 
     // 'tweet' the tweet to the browsers
     // only if the tweet was significant
-    if(sentiment['pos'] > 0.10 || sentiment['neg'] > 0.10){
+    if(sentiment_pos > 0.10 || sentiment_neg > 0.10){
+      sentiment_final = (sentiment_pos > sentiment_neg) ? sentiment_pos : -sentiment_neg;
+      sentiment_impression = sentiment_final * follower_count;
+      // console.log('sentiment_impression', sentiment_impression)
+      airlines.forEach(function(airline){
+        // which company was tweeted?
+        if(tweet['text'].indexOf(airline) != -1){
+          // update the dictionary
+          if(impressions.hasOwnProperty(airline)){
+            // if the airline has tweets already
+            prev_score = impressions[airline]['avg_sentiment_impression'];
+            prev_tweets = impressions[airline]['number_of_tweets'];
+            impressions[airline]['avg_sentiment_impression'] = (prev_score * prev_tweets + sentiment_impression)/(prev_tweets + 1);
+            impressions[airline]['number_of_tweets'] = impressions[airline]['number_of_tweets'] + 1;
+          } else {
+            impressions[airline] = {
+              number_of_tweets: 1,
+              avg_sentiment_impression: sentiment_impression
+            }
+          }
+        }
+      });
       io.emit('tweet', tweet);
+      io.emit('update_impressions', impressions);
     }
   })
 })
