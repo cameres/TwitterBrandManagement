@@ -141,7 +141,7 @@ stream.on('tweet', function(tweet) {
     var locations = []
 
     // check airport code candidates w/ airports data
-    // add coords if a match
+    // add coordinates if a match
     if(codes){
         for(i in codes){
         code = codes[i]
@@ -155,34 +155,23 @@ stream.on('tweet', function(tweet) {
     // add locations and sentiment to existing object
     tweet['airports'] = locations;
     tweet['sentiment'] = sentiment;
-    // console.log(tweet['airports'])
 
     // 'tweet' the tweet to the browsers
-    // only if the tweet was significant
     if(sentiment_pos > 0.10 || sentiment_neg > 0.10){
       sentiment_final = (sentiment_pos > sentiment_neg) ? sentiment_pos : -sentiment_neg;
       sentiment_impression = sentiment_final * follower_count;
       airlines.forEach(function(airline){
         // which company was tweeted?
-        if(tweet['text'].indexOf(airline) != -1){
+        if(tweet['text'].toLowerCase().indexOf(airline.toLowerCase()) != -1){
           // update the dictionary
-          if(impressions.hasOwnProperty(airline)){
-            // if the airline has tweets already
-            prev_score = impressions[airline]['avg_sentiment_impression'];
-            prev_tweets = impressions[airline]['number_of_tweets'];
-            impressions[airline]['avg_sentiment_impression'] = (prev_score * prev_tweets + sentiment_impression)/(prev_tweets + 1);
-            impressions[airline]['number_of_tweets'] = impressions[airline]['number_of_tweets'] + 1;
-          } else {
-            // impressions[airline] = {
-            //   number_of_tweets: 1,
-            //   avg_sentiment_impression: sentiment_impression
-            // }
-          }
+          prev_score = impressions[airline]['avg_sentiment_impression'];
+          prev_tweets = impressions[airline]['number_of_tweets'];
+          impressions[airline]['avg_sentiment_impression'] = (prev_score * prev_tweets + sentiment_impression)/(prev_tweets + 1);
+          impressions[airline]['number_of_tweets'] = impressions[airline]['number_of_tweets'] + 1;
         }
       });
       io.emit('impression', impressions);
       io.emit('tweet', tweet);
-      // io.emit('random', {y: Math.random()});
     }
   })
 })

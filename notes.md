@@ -3,7 +3,7 @@
 ## Connor
 ### P1
 - [x] Complete Sentiment Impressions Object
-- [ ] Complete Sentiment Impressions Chart
+- [x] Complete Sentiment Impressions Chart
 
 ### P2
 - [ ] Add Pins to Map
@@ -13,7 +13,7 @@
 
 ## Brad
 ### P1
-- [ ] Getting Location of Tweets
+- [x] Getting Location of Tweets
 
 ### P2
 - [ ] Analyze How Vader Works
