@@ -67,45 +67,41 @@ var stream = T.stream('statuses/filter', { track:[
   '@United']
 })
 
+// require airport codes/locations
+var airports = require('./airports.json')
+
 // async function called when a filtered tweet comes in
 stream.on('tweet', function(tweet) {
 
-  // call the sentiment-flask api to get the sentiment of the tweet
-  request.post('http://localhost:5000/sentiment', {form:{text: tweet['text']}}, function(error, response, body){
+  // call the parse-flask api to get the sentiment of the tweet
+  request.post('http://localhost:5000/parse', {form:{text: tweet['text']}}, function(error, response, body){
     // parse the json response from the server
-    var sentiment = JSON.parse(response["body"]);
-    // add sentiment to the existing
-    // javascript object to pass
+    var parsed = JSON.parse(response['body']);
+
+    // retrieve both code text and sentiment
+    var sentiment = JSON.parse(parsed['sentiment']);
+    var codes = parsed['codes'];
+
+
+    // initialize locations as coordinate list
+    var locations = []
+
+    // check airport code candidates w/ airports data
+    // add coords if a match
+    if(codes){
+        for(i in codes){
+        code = codes[i]
+        var coords = airports[code]
+        if(coords){
+            locations.push(coords)
+            }
+        }
+    }
+
+    // add locations and sentiment to existing object
+    tweet['airports'] = locations
     tweet['sentiment'] = sentiment;
-
-    // get the dictionary or other
-    // which company was tweeted?
-    console.log(tweet);
-
-    // use the bounding box
-    // // "bounding_box": {
-    //   "coordinates": [
-    //     [
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ],
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ],
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ],
-    //       [
-    //         -122.400612831116,
-    //         37.7821120598956
-    //       ]
-    //     ]
-    //   ],
-    //   "type": "Polygon"
-    // },
+    console.log(tweet['airports'])
 
     // 'tweet' the tweet to the browsers
     // only if the tweet was significant
