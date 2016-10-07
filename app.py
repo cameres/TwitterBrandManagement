@@ -32,7 +32,7 @@ def parse():
     response = {
         'sentiment': json.dumps(scores),
         'codes': codes
-                }
+    }
     # return json response
     return json.dumps(response)
 
