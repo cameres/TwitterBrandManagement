@@ -12,11 +12,11 @@ socket.on('tweet', function (data) {
   // embed them on the page
   if(sentiment['pos'] > sentiment['neg']){
     $('#left').prepend('<div class="tweet" id="'+tweet_id+'"><blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">'+
-      '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>'+
+    '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>'+
     '</blockquote></div>');
   } else {
     $('#right').prepend('<div class="tweet" id="'+tweet_id+'"><blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">'+
-      '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>' + '</blockquote></div>');
+    '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>' + '</blockquote></div>');
   }
   // creating a random point
   function getRandomInRange(from, to, fixed) {
@@ -74,10 +74,6 @@ socket.on('tweet', function (data) {
   twttr.widgets.load()
 });
 
-socket.on('update_impressions', function(impressions){
-  console.log(impressions);
-});
-
 
 socket.on('remove_tweet', function(data){
   // remove the tweet with this id
@@ -96,6 +92,127 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 		'Imagery © <a href="http://mapbox.com">Mapbox</a>',
 	id: 'mapbox.streets'
 }).addTo(mymap);
+
+function initialData(){
+  // generate an array of random data
+
+  var data = [],
+  time = (new Date()).getTime(),
+  i;
+
+  for (i = -999; i <= 0; i += 1) {
+    data.push([time + i * 1000,0]);
+  }
+  return data;
+}
+
+Highcharts.setOptions({
+  global: {
+    useUTC: false
+  }
+});
+
+// Create the chart
+$('#container').highcharts('StockChart', {
+  chart: {
+    events: {
+      load: function () {
+        var chart = this;
+        function update_chart(chart, data){
+          var x = (new Date()).getTime()
+
+          var i = 0;
+
+          for (var property in data) {
+            if(data.hasOwnProperty(property)) {
+              var series = chart.series[i];
+              y = data[property]['avg_sentiment_impression'];
+              series.addPoint([x, y]);
+              // increment index
+              i = i + 1;
+            }
+          }
+        }
+
+        socket.on('impression', update_chart.bind(null, this))
+      }
+    }
+  },
+
+  rangeSelector: {
+    buttons: [{
+      count: 1,
+      type: 'minute',
+      text: '1M'
+    }, {
+      count: 5,
+      type: 'minute',
+      text: '5M'
+    }, {
+      type: 'all',
+      text: 'All'
+    }],
+    inputEnabled: false,
+    selected: 0
+  },
+
+  title: {
+    text: 'Average Sentiment Impressions'
+  },
+
+  exporting: {
+    enabled: false
+  },
+  series:[
+  {
+    name: '@AlaskaAir',
+    data: initialData()
+  },
+  {
+    name: '@AmericanAir',
+    data: initialData()
+  },
+  {
+    name: '@Allegiant',
+    data: initialData()
+  },
+  {
+    name: '@Delta',
+    data: initialData()
+  },
+  {
+    name: '@FlyFrontier',
+    data: initialData()
+  },
+  {
+    name: '@HawaiianAir',
+    data: initialData()
+  },
+  {
+    name: '@JetBlue',
+    data: initialData()
+  },
+  {
+    name: '@Southwest',
+    data: initialData()
+  },
+  {
+    name: '@SpiritAirlines',
+    data: initialData()
+  },
+  {
+    name: '@SunCountryAir',
+    data: initialData()
+  },
+  {
+    name: '@VirginAmerica',
+    data: initialData()
+  },
+  {
+    name: '@United',
+    data: initialData()
+  }]
+});
 
 // middleware for detecting a clicked tweet
 $(document).on('click', '.tweet' , function() {
