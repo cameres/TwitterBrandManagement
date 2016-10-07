@@ -116,22 +116,46 @@ var airlines = [
 // all major us airlines
 var stream = T.stream('statuses/filter', { track:airlines });
 
+// require airport codes/locations
+var airports = require('./airports.json')
+
 // async function called when a filtered tweet comes in
 stream.on('tweet', function(tweet) {
 
-  // call the sentiment-flask api to get the sentiment of the tweet
-  request.post('http://localhost:5000/sentiment', {form:{text: tweet['text']}}, function(error, response, body){
-    // parse the json response from the server
-    var sentiment = JSON.parse(response['body']);
-    // add sentiment to the object
-    tweet['sentiment'] = sentiment;
+  // call the parse-flask api to get the sentiment of the tweet
+  request.post('http://localhost:5000/parse', {form:{text: tweet['text']}}, function(error, response, body){
+    var parsed = JSON.parse(response['body']);
+
+    // retrieve both code text and sentiment
+    var sentiment = JSON.parse(parsed['sentiment']);
 
     var sentiment_pos = sentiment['pos'];
     var sentiment_neg = sentiment['neg'];
 
-    // console.log(tweet);
 
     var follower_count = tweet['user']['followers_count']
+
+    var codes = parsed['codes'];
+
+    // initialize locations as coordinate list
+    var locations = []
+
+    // check airport code candidates w/ airports data
+    // add coords if a match
+    if(codes){
+        for(i in codes){
+        code = codes[i]
+        var coords = airports[code]
+        if(coords){
+            locations.push(coords)
+            }
+        }
+    }
+
+    // add locations and sentiment to existing object
+    tweet['airports'] = locations;
+    tweet['sentiment'] = sentiment;
+    // console.log(tweet['airports'])
 
     // 'tweet' the tweet to the browsers
     // only if the tweet was significant
