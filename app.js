@@ -5,7 +5,57 @@ var request = require('request');
 // var routes = require('./routes/index');
 
 // maintain a dictionary of imporessions for a flight
-var impressions = {}
+// hard coded, because chart library is difficult
+var impressions = {
+  '@AlaskaAir': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@AmericanAir': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@Allegiant': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@Delta': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@FlyFrontier': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@HawaiianAir': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@JetBlue': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@Southwest': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@SpiritAirlines': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@SunCountryAir': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@VirginAmerica': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  },
+  '@United': {
+    number_of_tweets: 0,
+    avg_sentiment_impression: 0
+  }
+}
 
 
 var app = express();
@@ -20,6 +70,10 @@ app.get('/', function(req, res){
 app.get('/about', function(req, res){
   res.render('about', { title: 'About' });
 })
+
+// app.get('/chart', function(req, res){
+//   res.render('chart', { title: 'Chart' });
+// })
 
 // app.use('/', routes);
 port = 3000;
@@ -84,7 +138,6 @@ stream.on('tweet', function(tweet) {
     if(sentiment_pos > 0.10 || sentiment_neg > 0.10){
       sentiment_final = (sentiment_pos > sentiment_neg) ? sentiment_pos : -sentiment_neg;
       sentiment_impression = sentiment_final * follower_count;
-      // console.log('sentiment_impression', sentiment_impression)
       airlines.forEach(function(airline){
         // which company was tweeted?
         if(tweet['text'].indexOf(airline) != -1){
@@ -96,15 +149,16 @@ stream.on('tweet', function(tweet) {
             impressions[airline]['avg_sentiment_impression'] = (prev_score * prev_tweets + sentiment_impression)/(prev_tweets + 1);
             impressions[airline]['number_of_tweets'] = impressions[airline]['number_of_tweets'] + 1;
           } else {
-            impressions[airline] = {
-              number_of_tweets: 1,
-              avg_sentiment_impression: sentiment_impression
-            }
+            // impressions[airline] = {
+            //   number_of_tweets: 1,
+            //   avg_sentiment_impression: sentiment_impression
+            // }
           }
         }
       });
+      io.emit('impression', impressions);
       io.emit('tweet', tweet);
-      io.emit('update_impressions', impressions);
+      // io.emit('random', {y: Math.random()});
     }
   })
 })
