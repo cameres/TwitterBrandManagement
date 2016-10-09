@@ -1,6 +1,6 @@
 ---
-title: "Final Report"
-author: "Connor Ameres and Bradley "
+title: "Final Report: Twitter Brand Management"
+author: "Connor Ameres and Brad Kenstler"
 date: "October 9th, 2016"
 ---
 # Final Report
@@ -72,7 +72,7 @@ After determing the sentiment of the tweet, we then were able to
 pin the user's location or location of arrival/departure on the map
 with their corresponding sentiment.
 
-![Pinning A Tweet on The Map](images/sarcasm.png)
+![Pinning A Positive Tweet on The Map](images/map.png)
 
 ## Sentiment Influence
 In order to distinguish which airlines were performing particularly well with
@@ -98,5 +98,3 @@ Lastly, we created a visualization of sentiment analysis with a realtime chart o
 average sentiment influence over time.
 Representitives will be familiar to the real time chart based their usage in finance.
 In the chart in figure 5, we can see exactly when Om Malik tweeted at @JetBlue.
-
-<!-- ![Incorrectly Classified Negative Tweet](images/correct_negative.png) -->
