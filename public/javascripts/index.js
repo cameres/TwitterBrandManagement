@@ -1,3 +1,5 @@
+"use strict"
+
 var socket = io.connect('http://localhost:3000');
 socket.on('tweet', function (data) {
   // get the data from the server
@@ -9,8 +11,7 @@ socket.on('tweet', function (data) {
   // link is required to successfully embed on page
   var link = 'https://twitter.com/' + user_name + '/status/' + tweet_id;
 
-  // if sentiments pass a particular threshold
-  // embed them on the page
+  // embed tweets in the correct column
   if(sentiment['pos'] > sentiment['neg']){
     $('#left').prepend('<div class="tweet" id="'+tweet_id+'"><blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">'+
     '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>'+
@@ -19,34 +20,26 @@ socket.on('tweet', function (data) {
     $('#right').prepend('<div class="tweet" id="'+tweet_id+'"><blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">'+
     '<a href="https://twitter.com/' + user_name + '/status/' + tweet_id + '"></a>' + '</blockquote></div>');
   }
-  // creating a random point
-  function getRandomInRange(from, to, fixed) {
-    return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
-  }
-
 
   // if tweet has coordinates, add marker to map
   // determine color by sentiment scores
   if(coordinates.length > 0){
-
-    if(sentiment['pos'] > sentiment['neg']){
-        c = 'green';
-        }
-    else{
-        c = 'red';
-        }
-    for(i in coordinates){
-
-
-        var circle = L.circle(coordinates[i], {
-            color: c,
-            fillColor: c,
-            fillOpacity: 0.5,
-            radius: 500
-            }).addTo(mymap);
-        }
+    var c = 'green';
+    if(sentiment['pos'] < sentiment['neg']){
+      c = 'red';
     }
-  // call widget load to format tweet
+
+    // add circle for each airport
+    for(var i in coordinates){
+      var circle = L.circle(coordinates[i], {
+        color: c,
+        fillColor: c,
+        fillOpacity: 0.5,
+        radius: 500
+        }).addTo(mymap);
+      }
+    }
+  // update embedded tweets on page
   twttr.widgets.load()
 });
 
@@ -102,7 +95,7 @@ $('#container').highcharts('StockChart', {
           for (var property in data) {
             if(data.hasOwnProperty(property)) {
               var series = chart.series[i];
-              y = data[property]['avg_sentiment_impression'];
+              var y = data[property]['avg_sentiment_impression'];
               series.addPoint([x, y]);
               // increment index
               i = i + 1;
@@ -110,6 +103,7 @@ $('#container').highcharts('StockChart', {
           }
         }
 
+        // bind the chart, so callback has reference
         socket.on('impression', update_chart.bind(null, this))
       }
     }

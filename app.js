@@ -1,3 +1,5 @@
+"use strict"
+
 var express = require('express');
 var path = require('path');
 var Twit = require('twit');
@@ -76,7 +78,7 @@ app.get('/about', function(req, res){
 // })
 
 // app.use('/', routes);
-port = 3000;
+var port = 3000;
 app.set('port', port);
 
 // create socket.io connections w/ server
@@ -94,7 +96,7 @@ io.on('connection', function(socket){
 });
 
 // must have credentials for api
-credentials = require('./twitter_credentials.json')
+var credentials = require('./twitter_credentials.json')
 // create twitter variable
 var T = new Twit(credentials);
 
@@ -143,13 +145,13 @@ stream.on('tweet', function(tweet) {
     // check airport code candidates w/ airports data
     // add coordinates if a match
     if(codes){
-        for(i in codes){
-        code = codes[i]
-        var coords = airports[code]
-        if(coords){
-            locations.push(coords)
-            }
+      for(var i in codes){
+      var code = codes[i]
+      var coords = airports[code]
+      if(coords){
+        locations.push(coords)
         }
+      }
     }
 
     // add locations and sentiment to existing object
@@ -158,14 +160,14 @@ stream.on('tweet', function(tweet) {
 
     // 'tweet' the tweet to the browsers
     if(sentiment_pos > 0.10 || sentiment_neg > 0.10){
-      sentiment_final = (sentiment_pos > sentiment_neg) ? sentiment_pos : -sentiment_neg;
-      sentiment_impression = sentiment_final * follower_count;
+      var sentiment_final = (sentiment_pos > sentiment_neg) ? sentiment_pos : -sentiment_neg;
+      var sentiment_impression = sentiment_final * follower_count;
       airlines.forEach(function(airline){
         // which company was tweeted?
         if(tweet['text'].toLowerCase().indexOf(airline.toLowerCase()) != -1){
           // update the dictionary
-          prev_score = impressions[airline]['avg_sentiment_impression'];
-          prev_tweets = impressions[airline]['number_of_tweets'];
+          var prev_score = impressions[airline]['avg_sentiment_impression'];
+          var prev_tweets = impressions[airline]['number_of_tweets'];
           impressions[airline]['avg_sentiment_impression'] = (prev_score * prev_tweets + sentiment_impression)/(prev_tweets + 1);
           impressions[airline]['number_of_tweets'] = impressions[airline]['number_of_tweets'] + 1;
         }
