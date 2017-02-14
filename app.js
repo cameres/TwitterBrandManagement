@@ -73,11 +73,6 @@ app.get('/about', function(req, res){
   res.render('about', { title: 'About' });
 })
 
-// app.get('/chart', function(req, res){
-//   res.render('chart', { title: 'Chart' });
-// })
-
-// app.use('/', routes);
 var port = 3000;
 app.set('port', port);
 
@@ -116,16 +111,17 @@ var airlines = [
 ];
 
 // all major us airlines
-var stream = T.stream('statuses/filter', { track:airlines });
+var stream = T.stream('statuses/filter', { track: airlines });
 
 // require airport codes/locations
 var airports = require('./airports.json')
 
 // async function called when a filtered tweet comes in
 stream.on('tweet', function(tweet) {
-
+  console.log(tweet);
   // call the parse-flask api to get the sentiment of the tweet
   request.post('http://localhost:5000/parse', {form:{text: tweet['text']}}, function(error, response, body){
+    debugger;
     var parsed = JSON.parse(response['body']);
 
     // retrieve both code text and sentiment

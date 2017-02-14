@@ -1,16 +1,103 @@
 # BrandManagement - A MSAN 692 Project
-<!-- We will create a dashboard for the marketing teams of various companies. In our application we will focus on major American airlines. Our application will have the following features: -->
+![report/images/tweets.gif](report/images/tweets.gif)
 
-<!-- - Receive tweets live corresponding to known handles of American operated airlines without refreshing the page
-- Analyze the sentiment of incoming tweets using the nltk Vader package to classify into happy, sad, or neutral tweets w/ an assigned "sentiment" value. Happy and sad tweets are presented to the dashboard under happy/sad feeds respectively, while neutral is excluded (those tweets whose 'sentiment' value magnitude fall below a certain 'nuetrality' threshold).
-- Dashboard allows marketing team to respond to tweets individually
-    - Browser communicates said action to server, which then removes Tweet in question from all feeds. This prevents duplication of efforts by marketing team in replying to tweets.
-- Map those tweets that have locations to their coordinates on the map
-     -Actual locations given are polygonal areas. Will compute centroid for pin coords
-     - The dashboard will aggregate tweets by location "areas" live, with each "area"               represented by a circle
-     - The size of each circle will represent the # of tweets in that area
-     - The color of each circle will describe the ratio of positive/negative tweets under              each area, from green to red
-- In addition, the dashboard will track the overall "impression" of a brand live using a      barchart.
-      - "Impression" for each brand is defined as the sum of sentiment values of each               tweet, weighted by the # of followers for that handle.
-      - The idea here is to capture the overall "impression" of the brand by the public by            not only taking into account the # of good/bad tweets and their strength, but also            the size of the audience being reached by said tweets (# of followers). For                       example, a negative tweet by Barack Obama about JetBlue will have a greater           affect on the public's impression of JetBlue than a negative tweet by Connor.
-      - We want to keep track of this overall -->
+## Introduction
+We believe that the dashboard that we previously proposed will allow our company to visualize key information from the
+Twittersphere. Understanding what the public is saying about our brand, as well as where they are saying it,
+will give us a competitive edge. In this report we outline proposed features from our initial proposal
+and how we incorporated them into our final product.
+
+## Sentiment Analysis
+In order to create a sentiment analysis web application for customer
+service representatives of various companies to gather feedback about
+their respective airlines, we first needed to be able to gather data from twitter.
+We found that the twitter streaming API would best suite our use case,
+because while we wanted our representatives to be able to responded to
+to potentially every single tweet for their airline.
+The rest API twitter provided didn't allow us to request more than 100
+tweets at a time and our application would have to maintain a data structure
+or data store to determine whether or not a tweet had been responded to.
+
+In order to analyze the sentiment of every tweet we needed to create
+an additional service that would classify the sentiment of the streaming tweets.
+In order to cut the cost of using a service like Google's
+Sentiment Analysis API, we used VADER. VADER is a part
+of a very popular python package, NLTK, and is designed to correctly
+classify social media tweets ([see paper](http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf)).
+
+After the tweets were analyzed for sentiment, our main server would
+stream the tweets to all representatives connected to the website.
+From the website representatives would be able to respond directly
+to the person tweeting at the airline and address the potential concern
+the person might have.
+
+We found that overall airlines are fairly effective in responding to
+tweets with sentiment, sometimes responding within minutes of complaints being made.
+We believe that this indicates some combination of sentiment analysis tools
+or an overstaffed team.
+
+## The Data
+While we found that the VADER library performed very well for tweets
+(see correctly classified tweets in figure 1 and figure 2)
+we found that we would need to tune the algorithm in order to
+produce more false negatives than positives, under the impression
+that responding avoided the churning of a customer.
+
+![Correctly Classified Positive Tweet](report/images/correct_positive.png)
+
+![Correctly Classified Negative Tweet](report/images/correct_negative.png)
+
+![Incorrectly Classified Positive Tweet](report/images/incorrect_positive.png)
+
+The tweet in figure 1.3 shows an example of an incorrectly classified tweet.
+Two of Dr. Jeffery W. Ross' were correctly classified while this tweet has
+been classified incorrectly. Tweets like these stood out among other
+incorrectly classified tweets. Other tweets might have elements like sarcasm
+which made for difficult classification, but Ross' tweet contains no sarcasm
+and the sentiment seems straightforward.
+
+![Incorrectly Classified Sarcastic Tweet](report/images/sarcasm.png)
+
+Figure 1.4 shows an incorrectly classified sarcastic tweet. We found that
+the great majority of tweets that streamed through our application were
+incorrectly classified due to the usage of the word thank in a sarcastic manner.
+
+
+## Mapping Sentiment to Airports
+In inspecting the tweets streaming in, we found that the great majority
+of users were not including their location in their tweets. We wanted to
+be able to map out where user's were flying or which airport they might
+be located at to gauge critical problems at particular locations. In order
+to achieve our goal we were able to extract the airport codes from the
+tweets text and mapped that code to a particular
+latitude and longitude using a dataset source from [openflights.org](http://openflights.org/data.html).
+After determining the sentiment of the tweet, we then were able to
+pin the user's location or location of arrival/departure on the map
+with their corresponding sentiment.
+
+![Pinning A Positive Tweet on The Map](report/images/map.png)
+
+## Sentiment Influence
+In order to distinguish which airlines were performing particularly well with
+customers we measured the influence of a particular user based on the number
+of twitter followers they had. We could not measure the number of
+views of the tweet like twitter currently does.
+It was also decided that to preemptively respond to the
+tweet of a user with more followers would generate more views of a customer
+service representatives response.
+
+$$\text{Sentiment Influence} = \text{Sentiment} * \text{Influence}$$
+
+![Om Malik's Tweet](report/images/malik.png)
+
+An example of a tweet with a large sentiment influence is Om Malik's tweet (see figure 4).
+Malik is a registered user on twitter with 1.5M followers. Simply put
+his tweets will garner more views than someone with a smaller network.
+Tweets from users like Om Malik become a high priority as the network effect
+is stronger for responses to these tweets.
+
+![Sentiment Influence Chart](report/images/chart.png)
+
+Lastly, we created a visualization of sentiment analysis with a real-time chart of
+average sentiment influence over time.
+In the chart in figure 5, we can see exactly when Om Malik tweeted at @JetBlue.
