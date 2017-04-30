@@ -121,7 +121,6 @@ stream.on('tweet', function(tweet) {
   console.log(tweet);
   // call the parse-flask api to get the sentiment of the tweet
   request.post('http://localhost:5000/parse', {form:{text: tweet['text']}}, function(error, response, body){
-    debugger;
     var parsed = JSON.parse(response['body']);
 
     // retrieve both code text and sentiment
